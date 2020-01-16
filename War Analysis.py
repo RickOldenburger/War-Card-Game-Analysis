@@ -1,8 +1,8 @@
 # Copyright @ 2020 Rick Oldenburger
 # Version Date       Description
 # .5      1/1/2020   Initial class card_games written
-# .6      1/4/2020   Added to autoplay for multiple rounds, and gave option
-#                     to not print ropund by roound assesment of game play
+# .6      1/4/2020   Added to play and playSet for multiple sets, 
+#                     and gave option to not print assesment of game play
 # .7      1/7/2020   Added ability to set deck size and apply specific cards
 #                     to a player (addCheats).
 # .8      1/10/2020  Added line, scatter, and pie graphs
@@ -17,6 +17,7 @@
 #                     since pandas Series object did not reset certain settings
 #                     from previous plots when executing the command: plot
 #                     if the previous plot was still available
+# 1.2     1/15/2020   Moved to GitHub
 
 import random
 from collections import defaultdict
@@ -34,10 +35,11 @@ import time
 from datetime import timedelta
 
 
-class card_games:
+class War_card_game:
     """
-    Utility class that plays games of war and generates a statistical pandas
-    dataframe that can be utilized for analyzing the results.
+    Card game class that plays matches of the card game war and generates a
+    statistical pandas dataFrame that can be utilized for analyzing the 
+    results.
     """
     def __init__(self, cards, suits, unSuited=None, reshuffleWins=True, 
                  applyCheatsPreSplit=True):
@@ -60,7 +62,7 @@ class card_games:
         reshuffleWins --> If set to false then the deck of discards is not
           reshuffled before being used again by the player. Although the rules
           are not clear here if cards are not reshuffled the games will take a 
-          lot longer.
+          lot longer if they are not.
           (BOOL) Optional Defaults to True
           
        applyCheatsPreSplit --> perform cheats before or after splitting the
@@ -80,6 +82,111 @@ class card_games:
         self._FINAL = 0
         self._rounds = 0
         
+    def _shuffleDict(self, d):
+        """
+        Since there is no shuffle feature for dictionaries, that I know of,
+        I had to convert the dictionary to a List.
+          
+        d --> the dictionary to shuffle
+        
+        RETURNS --> the shuffled dictionary
+        """
+        keys = list(d.items())  # Turn the dictionary into a list of items
+        random.shuffle(keys)  # Shuffle them
+        return dict(keys)  # Return the list as a a dictionary
+
+    def _makeColors(self, vals, map="gist_rainbow_r", amt = 0.0):
+        """
+        This function returns a scaled map based on all the values passed
+        to the function. It will assign one scaled color to each value passed
+
+        vals --> values to be scaled 
+    
+        map --> optional string of the scale to use. defaults to gist_rainbow_r
+          since this is the scale I chose to use for my graph.
+        """
+        
+        colors = np.zeros((len(vals),3))
+        norm = Normalize(vmin=vals.min(), vmax=vals.max())
+        #Can put any colormap you like here.
+        if amt == 0.0:
+            # no point in calling darken if no change is requested
+            colors = [cm.ScalarMappable(norm=norm, cmap=map).to_rgba(val)
+                for val in vals]
+        else:
+            colors = [self._darken(cm.ScalarMappable(norm=norm,
+                                                     cmap=map).to_rgba(val),
+                                   amt)
+                for val in vals]
+            
+        return colors
+
+    def _darken(self, color, amt=.1):
+        """
+        This function will take a passed color value and darken it slighlty.
+        
+        color --> original color to be made darker
+    
+        amt --> amount to darken (or lighten if a value less than 1 is passed
+        """
+        c = list(color)
+        c[0] = 1 - amt*(1-c[0])
+        if c[0] < 0: c[0] = 0 # less than zero values generate an error
+        c[1] = 1 - amt*(1-c[1])
+        if c[1] < 0: c[1] = 0
+        c[2] = 1 - amt*(1-c[2])
+        if c[2] < 0: c[2] = 0    
+        return c
+        
+    def _makeStats(self, *args):
+        """
+        Function called to create the statisical records. This function is 
+        meant to be called from within the class.
+        
+        This function takes one parm. This parm works as follows:
+          If one value is passed this will be flagged as the last round of
+          play. It will also assign the winner to the second field by finding
+          the first value that is not assigned.
+          
+         If two parms are specified then it is assumed that this player is 
+           out of cards and 
+        """
+        curSize = self._players + 2
+
+        if len(args) > 0:
+            if len(self._stats.columns) != curSize:
+                self._makeStats()
+
+            if len(args) == 1:
+                # If only one arg is sent, then this is the winner
+                # we set the winner value by finding the first
+                #   and hopefully only 0 number under a player
+                self._stat[0] = args[0]
+                self._stat[1] = next(
+                    (cntr + 1 for cntr, x in enumerate(self._stat[2:])
+                     if x == 0), self._stat[1:].index(max(self._stat)))
+                    # Should never happen but if all the values are populated
+                    #   then return the index of the highest value
+                                
+                self._stats.loc[len(self._stats.index) + 1] = self._stat
+                self._stat = [0] * curSize
+            else:
+                # If 2 parms are sent then we are flagging a loser
+                self._stat[args[1] + 1] = args[0]
+        else:
+            # create a datFrame with a key based on the match number
+            # Number of Rounds
+            # Winner flag, as well as values for each player
+            # that are set to the number of Rounds that player lasted
+            if len(self._stats.columns) != curSize:
+                col = ["Match", "Rounds", "Winner"]
+                plr = lambda x: "Player " + str(x + 1)
+                colDyn = [plr(x) for x in range(self._players)]
+                self._stats = pd.DataFrame(columns=col + colDyn,
+                                           dtype=np.int64)
+                self._stats.set_index("Match", inplace=True)
+                self._stat = [0] * (curSize)    
+
     def setDeck(self, cards, suits, unSuited=None):
         """
         Sets the deck for this class
@@ -201,55 +308,6 @@ class card_games:
         Resets the statistical data.
         """
         self._stats = pd.DataFrame()
-
-    def _makeStats(self, *args):
-        """
-        Function called to create the statisical records. This function is 
-        meant to be called from within the class.
-        
-        This function takes one parm. This parm works as follows:
-          If one value is passed this will be flagged as the last round of
-          play. It will also assign the winner to the second field by finding
-          the first value that is not assigned.
-          
-         If two parms are specified then it is assumed that this player is 
-           out of cards and 
-        """
-        curSize = self._players + 2
-
-        if len(args) > 0:
-            if len(self._stats.columns) != curSize:
-                self._makeStats()
-
-            if len(args) == 1:
-                # If only one arg is sent, then this is the winner
-                # we set the winner value by finding the first
-                #   and hopefully only 0 number under a player
-                self._stat[0] = args[0]
-                self._stat[1] = next(
-                    (cntr + 1 for cntr, x in enumerate(self._stat[2:])
-                     if x == 0), self._stat[1:].index(max(self._stat)))
-                    # Should never happen but if all the values are populated
-                    #   then return the index of the highest value
-                                
-                self._stats.loc[len(self._stats.index) + 1] = self._stat
-                self._stat = [0] * curSize
-            else:
-                # If 2 parms are sent then we are flagging a loser
-                self._stat[args[1] + 1] = args[0]
-        else:
-            # create a datFrame with a key based on the match number
-            # Number of Rounds
-            # Winner flag, as well as values for each player
-            # that are set to the number of Rounds that player lasted
-            if len(self._stats.columns) != curSize:
-                col = ["Match", "Rounds", "Winner"]
-                plr = lambda x: "Player " + str(x + 1)
-                colDyn = [plr(x) for x in range(self._players)]
-                self._stats = pd.DataFrame(columns=col + colDyn,
-                                           dtype=np.int64)
-                self._stats.set_index("Match", inplace=True)
-                self._stat = [0] * (curSize)
 
     def getStats(self):
         """
@@ -442,10 +500,7 @@ class card_games:
                     # Player has no active deck but has a played deck
                     
                     # Use the option _reshuffleWins to determine if we will
-                    #   shuffle the played deck. Games will be a lot longer
-                    #   if we do not perform this action. However, I flagged
-                    #   it as an option since the rules are not clear on what
-                    #   action should be performed here.
+                    #   shuffle the played deck. 
                     if self._reshuffleWins:
                         if message:
                             print("Player:", cntr + 1,
@@ -578,65 +633,23 @@ class card_games:
             for _ in range(maxRounds):
                 if self.battle(message) == -1:
                     break
-
-    def _shuffleDict(self, d):
+        
+    def playMatch(self, players = 2, matches = 10000, maxRounds=0):
         """
-        Since there is no shuffle feature for dictionaries, that I know of,
-        I had to convert the dictionary to a List.
+        Play a sepcified number of matches
+        
+        players --> Number of players for this match.
+          Changing the number of players will automatically reset the stats.
+          Defaults to 2 (INT)
           
-        d --> the dictionary to shuffle
-        
-        RETURNS --> the shuffled dictionary
+        matches --> Number of matches to play.
+         Defaults to 10000 (INT)
+         
+        maxRounds --> Maximum number of rounds to play before aborting a game
+          a 0 means to play an infinite number of times.
+          Defaults to 0 (INT)
         """
-        keys = list(d.items())  # Turn the dictionary into a list of items
-        random.shuffle(keys)  # Shuffle them
-        return dict(keys)  # Return the list as a a dictionary
-
-    def _makeColors(self, vals, map="gist_rainbow_r", amt = 0.0):
-        """
-        This function returns a scaled map based on all the values passed
-        to the function. It will assign one scaled color to each value passed
-
-        vals --> values to be scaled 
-    
-        map --> optional string of the scale to use. defaults to gist_rainbow_r
-          since this is the scale I chose to use for my graph.
-        """
-        
-        colors = np.zeros((len(vals),3))
-        norm = Normalize(vmin=vals.min(), vmax=vals.max())
-        #Can put any colormap you like here.
-        if amt == 0.0:
-            # no point in calling darken if no change is requested
-            colors = [cm.ScalarMappable(norm=norm, cmap=map).to_rgba(val)
-                for val in vals]
-        else:
-            colors = [self._darken(cm.ScalarMappable(norm=norm,
-                                                     cmap=map).to_rgba(val),
-                                   amt)
-                for val in vals]
-            
-        return colors
-
-    def _darken(self, color, amt=.1):
-        """
-        This function will take a passed color value and darken it slighlty.
-        
-        color --> original color to be made darker
-    
-        amt --> amount to darken (or lighten if a value less than 1 is passed
-        """
-        c = list(color)
-        c[0] = 1 - amt*(1-c[0])
-        if c[0] < 0: c[0] = 0 # less than zero values generate an error
-        c[1] = 1 - amt*(1-c[1])
-        if c[1] < 0: c[1] = 0
-        c[2] = 1 - amt*(1-c[2])
-        if c[2] < 0: c[2] = 0    
-        return c
-        
-    def playRounds(self, players = 2, rounds = 10000, maxRounds=0):
-        for _ in range(rounds):
+        for _ in range(matches):
             self.play(players, False, maxRounds)
             
     def valueCountGraph(self):
@@ -644,9 +657,9 @@ class card_games:
         Display a value count graph for our statistic data
         """
         df = self.getStats()
-        totalGames = len(df)
-        if (totalGames == 0):
-            print("Need to play at least one game for a graph", flush = True)
+        totalMatches = len(df)
+        if (totalMatches == 0):
+            print("Need to play at least one match for a graph", flush = True)
             return
         
         # generate a series for graphing later
@@ -663,7 +676,7 @@ class card_games:
         x = vc.plot(legend=True)
         x.set_xlabel("Number of Rounds to Win")
         x.set_ylabel("Occurrences")
-        x.set_title("Value-Count Graph (Games: " + str(totalGames) + ")")
+        x.set_title("Value-Count Graph (Matches: " + str(totalMatches) + ")")
         
         Occurences = max(vc) + 1
         # for small values set y tic mark text
@@ -681,9 +694,9 @@ class card_games:
         Display a value count Scatter plot for our statistical data
         """
         df = self.getStats()
-        totalGames = len(df)
-        if (totalGames == 0):
-            print("Need to play at least one game for a graph", flush = True)
+        totalMatches = len(df)
+        if (totalMatches == 0):
+            print("Need to play at least one match for a graph", flush = True)
             return
                 
         # generate a series for graphing later
@@ -700,7 +713,7 @@ class card_games:
         #   resided
         for i in range(1, players):
             tmp = df[(df.Winner==i)]["Rounds"]
-            winPercent = round(len(tmp)/totalGames*100,1)
+            winPercent = round(len(tmp)/totalMatches*100,1)
             yText.append(f'${i}$\n$({winPercent}\%)$')
          
         # We need to take the value counts and renmae the axis to "Rounds"
@@ -728,8 +741,8 @@ class card_games:
         ax.set_xlabel("Occurrences", labelpad=10)
         ax.set_ylabel("Winner", labelpad=20)
         ax.set_zlabel("Number of Rounds to Win")
-        ax.set_title("Value-Count Scatter 3D Plot (Games: " +
-                      str(totalGames) + ")")
+        ax.set_title("Value-Count Scatter 3D Plot (Matches: " +
+                      str(totalMatches) + ")")
         
         # for small values set y tic mark text
         if Occurences <= 20:
@@ -748,9 +761,9 @@ class card_games:
         packed.        
         """
         df = self.getStats()
-        totalGames = len(df)
-        if (totalGames == 0):
-            print("Need to play at least one game for a graph", flush = True)
+        totalMatches = len(df)
+        if (totalMatches == 0):
+            print("Need to play at least one match for a graph", flush = True)
             return
         players = self.getPlayers() # We need this to build our player text
 
@@ -765,7 +778,7 @@ class card_games:
         for i in range(1, players+1):
             tmp = df[(df.Winner==i)]["Rounds"]
             wins = len(tmp)
-            winPercent = round(len(tmp)/totalGames*100,1)
+            winPercent = round(len(tmp)/totalMatches*100,1)
             yText.append(f'${i}$\n$({winPercent}\%)$')
             if wins > 1:
                 try:
@@ -793,16 +806,16 @@ class card_games:
 
         plt.title(
 """Kernel Density Estimate (KDE) Scatter Plot 
-Turns until winning (Games: """ + str(totalGames) + ")")
+Turns until winning (Matches: """ + str(totalMatches) + ")")
         plt.ylabel("Player (Percentage of Wins)")
         plt.xlabel("Number of Rounds to Win")
         plt.show()
         
     def pieGraph(self):
         df = self.getStats()
-        totalGames = len(df)
-        if (totalGames == 0):
-            print("Need to play at least one game for a graph", flush = True)
+        totalMatches = len(df)
+        if (totalMatches == 0):
+            print("Need to play at least one match for a graph", flush = True)
             return
         
         vc = df["Winner"].value_counts() # get a list of the number of winners
@@ -822,7 +835,7 @@ Turns until winning (Games: """ + str(totalGames) + ")")
                                              dtype=np.int64), "Paired")
         
         #If any percentage is less than 1 percent then use a legend       
-        if (min(wins)/totalGames*100) >= 1:
+        if (min(wins)/totalMatches*100) >= 1:
             _, ax = plt.subplots(figsize=[9, 9])
 
             ax.set_prop_cycle("color", color)
@@ -834,7 +847,7 @@ Turns until winning (Games: """ + str(totalGames) + ")")
             plt.ylabel("Players")
         else:
             labels = ["".join(["Player: ",str(i),
-                 "".join([" (",str(round(wins[pos]/totalGames*100,1)),"%)"])])
+                 "".join([" (",str(round(wins[pos]/totalMatches*100,1)),"%)"])])
                  for pos, i in enumerate(labels)]
 
             _, ax = plt.subplots(figsize=[9, 9])
@@ -852,17 +865,17 @@ Turns until winning (Games: """ + str(totalGames) + ")")
         
         # We want to return player 0, since this is the player that we
         #   are giving the aces to
-        return totalGames, round(wins[0]/totalGames*100,2)
+        return totalMatches, round(wins[0]/totalMatches*100,2)
 
     def getTally(self):
         """
-        returns the total games played and the highest percentage
+        returns the total matches played and the highest percentage
         """
         df = self.getStats()
-        totalGames = len(df)
+        totalMatches = len(df)
         vc = df["Winner"].value_counts()
         wins = vc.tolist()
-        return totalGames, round(max(wins)/totalGames*100,2)
+        return totalMatches, round(max(wins)/totalMatches*100,2)
         
     def allGraphs(self):
         self.valueCountGraph()
@@ -910,7 +923,7 @@ class timeStamp:
 
 
 #Non class functions
-def getPerformance(gm, maxPlayers, rounds, maxRounds):
+def getPerformance(gm, maxPlayers, matches, maxRounds):
     """
     Process get a total time stamp for execution time and generate
     a log file
@@ -918,10 +931,10 @@ def getPerformance(gm, maxPlayers, rounds, maxRounds):
     tm = timeStamp()
     deckSize = len(gm.getDeck())
     col = ["Hands", f"Cards ({deckSize})", "Players", 
-           "Shuffling/cheats before",    "Games (SCB)", "Time (SCB)",
-           "Shuffling/cheats after",     "Games (SCA)", "Time (SCA)",
-           "No shuffling/cheats before", "Games (NCB)", "Time (NCB)", 
-           "No shuffling/cheats after",  "Games (NCA)", "Time (NCA)",
+           "Shuffling/cheats before",    "Matches (SCB)", "Time (SCB)",
+           "Shuffling/cheats after",     "Matches (SCA)", "Time (SCA)",
+           "No shuffling/cheats before", "Matches (NCB)", "Time (NCB)", 
+           "No shuffling/cheats after",  "Matches (NCA)", "Time (NCA)",
            "Total Elapsed Time"]
     # Do not hard code the number of columns to simplify future changes
     numCols = len(col) 
@@ -946,7 +959,7 @@ def getPerformance(gm, maxPlayers, rounds, maxRounds):
         gm.setReshuffleWins(True)
         print("* Assign cheats before splitting *")
         gm.setApplyCheatsPreSplit(True)
-        gm.playRounds(i,rounds, maxRounds)
+        gm.playMatch(i, matches, maxRounds)
         pStat[3], pStat[4]  = gm.getTally()
         pStat[5] = tm.elapsed()
         print(pStat[5], flush = True)
@@ -955,7 +968,7 @@ def getPerformance(gm, maxPlayers, rounds, maxRounds):
         gm.clearStats() 
         print("* Assign cheats after splitting *")
         gm.setApplyCheatsPreSplit(False)
-        gm.playRounds(i,rounds, maxRounds)
+        gm.playMatch(i, matches, maxRounds)
         pStat[6], pStat[7] = gm.getTally()
         pStat[8] = tm.elapsed()
         print(pStat[8], flush = True)
@@ -966,7 +979,7 @@ def getPerformance(gm, maxPlayers, rounds, maxRounds):
         gm.setReshuffleWins(False)
         print("* Assign cheats before splitting *")
         gm.setApplyCheatsPreSplit(True)
-        gm.playRounds(i,rounds, maxRounds)
+        gm.playMatch(i, matches, maxRounds)
         pStat[9], pStat[10] = gm.getTally()
         pStat[11] = tm.elapsed()
         print(pStat[11], flush = True)
@@ -975,7 +988,7 @@ def getPerformance(gm, maxPlayers, rounds, maxRounds):
         gm.clearStats() 
         print("* Assign cheats after splitting *")
         gm.setApplyCheatsPreSplit(False)
-        gm.playRounds(i,rounds, maxRounds)
+        gm.playMatch(i, matches, maxRounds)
         pStat[12], pStat[13] = gm.getTally()
         pStat[14] = tm.elapsed()
         print(pStat[14], flush = True)
@@ -1010,29 +1023,29 @@ if __name__ == "__main__":
     unsuited = None # {'Joker_1': 15, 'Joker_2': 15, 'Super': 16}
 
     # build our deck and assign the special rules for analysis
-    games = card_games(cards, suits, unsuited)
+    games = War_card_game(cards, suits, unsuited)
     # Always assign the aces to placyer 1
     games.addCheats(["A-Heart", "A-Spade", "A-Diamond", "A-Club"]) 
     games.setPlayerHand(4, 1) # Limit player one to four cards
 
     maxPlayers = 11 # maximum players to run analysis for
-    rounds = 1000 # total number of games to play per test
+    matches = 1000 # total number of matches to play per test
     # had to set maxRounds for games where we are not shuffling player hands
     #   from win pile
     maxRounds = 5000
-    getPerformance(games, maxPlayers, rounds, maxRounds)
+    getPerformance(games, maxPlayers, matches, maxRounds)
 
     # Play for range of playes 2 and 3 and only change when applying the 
     #   specific cards to a player since these we the most interesting results
 
     games.setApplyCheatsPreSplit(True)
     games.setReshuffleWins(True)
-    print("*** 3 Players ***", flush = True)
-    games.playRounds(4, 10000)
+    print("*** 3 Players Generating Graphs ***", flush = True)
+    games.playMatch(4, 10000)
     games.export_Stats(fr"War_3_player_dataframe.csv")
     games.allGraphs() 
         
     # For testing purposes this code will print the entire dataFrame 
     #   to the screen
     # pd.options.display.max_rows = 10000
-    # print(games.getStats())  
+    # print(games.getStats())   
