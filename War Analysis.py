@@ -430,7 +430,7 @@ class War_card_game:
                     if card in d:
                         w[pos - 1][card] = d[card]
                         del d[card]
-                        exit
+                        break
 
             # Build list of extra entries and remove them from the players hand
             for cntr, d in enumerate(self._decks):
@@ -453,7 +453,7 @@ class War_card_game:
                         d[card] = w[num][card]
                         del w[num][card]
                     else:
-                        exit
+                        break
                 # Needed to return to the self._decks[cntr] deck since the 
                 # function shuffleDict returns a new dictionary which will 
                 # break the link between d and self._decks[cntr]
