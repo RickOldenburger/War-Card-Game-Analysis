@@ -21,25 +21,25 @@ These results include:
 
 4.	Shuffling/cheats before - Percentage of times player 1 won, where discards are shuffled, and aces are given to player 1 before dealing out hands.
 
-5.	Games (SCB) - Total number of games for number 4.
+5.	Matches (SCB) - Total number of games for number 4.
 
 6.	Time (SCB) - Amount of time this set took for number 4.
 
 7.	Shuffling/cheats after - Percentage of times player 1 won, where discards are shuffled, and aces are given to player 1 after dealing out hands. (If there are less than 52 cards in these rounds, there is a chance an ace will be removed before it can be given to player 1.)
 
-8.	Games (SCB) - Total number of games for number 7.
+8.	Matches (SCB) - Total number of games for number 7.
 
 9.	Time (SCB) - Amount of time this set took for number 7.
 
 10.	No shuffling/cheats before - Percentage of times player 1 won, where discards are NOT shuffled, and aces are given to player 1 before dealing out hands.
 
-11.	Games (SCB) - Total number of games for number 10.
+11.	Matches (SCB) - Total number of games for number 10.
 
 12.	Time (SCB) - Amount of time this set took for number 10.
 
 13.	No shuffling/cheats after - Percentage of times player 1 won, where discards are NOT shuffled, and aces are given to player 1 after dealing out hands. (As with number 5, there is a chance an ace will be removed before it can be given to player 1.)
 
-14.	Games (SCB) - Total number of games for number 13.
+14.	Matches (SCB) - Total number of games for number 13.
 
 15.	Time (SCB) - Amount of time this set took for number 13.
 
