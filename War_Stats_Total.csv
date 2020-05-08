@@ -1,12 +1,12 @@
 Hands,Cards (52),Players,Shuffling/cheats before,Matches (SCB),Time (SCB),Shuffling/cheats after,Matches (SCA),Time (SCA),No shuffling/cheats before,Matches (NCB),Time (NCB),No shuffling/cheats after,Matches (NCA),Time (NCA),Total Elapsed Time
-"4, 48 x 1",52,2,1000,83.1,Elapsed time 0:00:03.817797,1000,83.2,Elapsed time 0:00:03.936730,412,56.55,Elapsed time 0:00:21.304721,430,51.4,Elapsed time 0:00:21.332673,Round Total elapsed time 0:00:50.395922
-"4, 24 x 2",52,3,1000,84.5,Elapsed time 0:00:03.870781,1000,85.7,Elapsed time 0:00:03.923857,624,81.89,Elapsed time 0:00:17.070132,630,84.76,Elapsed time 0:00:17.153103,Round Total elapsed time 0:00:42.021853
-"4, 16 x 3",52,4,1000,86.1,Elapsed time 0:00:03.752834,1000,86.5,Elapsed time 0:00:03.962714,648,80.86,Elapsed time 0:00:20.575129,633,84.99,Elapsed time 0:00:19.367822,Round Total elapsed time 0:00:47.663496
-"4, 12 x 4",52,5,1000,88.6,Elapsed time 0:00:03.733845,1000,87.9,Elapsed time 0:00:03.853768,683,90.04,Elapsed time 0:00:18.923082,686,91.25,Elapsed time 0:00:17.818729,Round Total elapsed time 0:00:44.335429
-"4, 9 x 5",49,6,1000,90.7,Elapsed time 0:00:03.118219,1000,90.5,Elapsed time 0:00:03.293066,1000,89.6,Elapsed time 0:00:02.433595,1000,87.1,Elapsed time 0:00:02.666474,Round Total elapsed time 0:00:11.514356
-"4, 8 x 6",52,7,1000,90.7,Elapsed time 0:00:03.395040,1000,91.6,Elapsed time 0:00:03.440017,705,91.91,Elapsed time 0:00:21.653506,713,91.16,Elapsed time 0:00:18.622255,Round Total elapsed time 0:00:47.114814
-"4, 6 x 7",46,8,1000,96.7,Elapsed time 0:00:02.088773,1000,91.3,Elapsed time 0:00:02.764406,828,96.74,Elapsed time 0:00:12.555764,756,94.31,Elapsed time 0:00:16.011742,Round Total elapsed time 0:00:33.425691
-"4, 6 x 8",52,9,1000,96.8,Elapsed time 0:00:02.488582,1000,96.4,Elapsed time 0:00:02.529540,857,97.32,Elapsed time 0:00:12.592748,832,97.36,Elapsed time 0:00:13.594137,Round Total elapsed time 0:00:31.209991
-"4, 5 x 9",49,10,1000,97.8,Elapsed time 0:00:01.967848,1000,97.2,Elapsed time 0:00:02.422603,1000,98.6,Elapsed time 0:00:01.670027,1000,96.3,Elapsed time 0:00:01.886911,Round Total elapsed time 0:00:07.951396
-"4, 4 x 10",44,11,1000,100.0,Elapsed time 0:00:01.079377,1000,97.2,Elapsed time 0:00:01.970881,1000,100.0,Elapsed time 0:00:01.054390,878,97.61,Elapsed time 0:00:10.442976,Round Total elapsed time 0:00:14.552603
-0,0,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0.0,0,Total elapsed time 0:05:30.265551
+"4, 48 x 1",52,2,84.9,1000,Elapsed time 0:00:04.122912,81.8,1000,Elapsed time 0:00:04.416415,53.85,416,Elapsed time 0:00:18.383182,52.15,418,Elapsed time 0:00:17.983460,Round Total elapsed time 0:00:44.909947
+"4, 24 x 2",52,3,87.8,1000,Elapsed time 0:00:03.860480,86.6,1000,Elapsed time 0:00:03.723451,83.23,626,Elapsed time 0:00:13.578578,84.01,638,Elapsed time 0:00:14.881984,Round Total elapsed time 0:00:36.046502
+"4, 16 x 3",52,4,87.0,1000,Elapsed time 0:00:03.782007,88.9,1000,Elapsed time 0:00:03.460251,84.76,630,Elapsed time 0:00:15.721632,84.79,605,Elapsed time 0:00:16.500634,Round Total elapsed time 0:00:39.466563
+"4, 12 x 4",52,5,91.2,1000,Elapsed time 0:00:03.666241,88.5,1000,Elapsed time 0:00:03.708851,89.65,686,Elapsed time 0:00:14.960754,91.18,669,Elapsed time 0:00:15.472975,Round Total elapsed time 0:00:37.811821
+"4, 9 x 5",49,6,92.1,1000,Elapsed time 0:00:03.066154,89.4,1000,Elapsed time 0:00:03.338535,89.2,1000,Elapsed time 0:00:02.701947,88.0,1000,Elapsed time 0:00:02.913899,Round Total elapsed time 0:00:12.022517
+"4, 8 x 6",52,7,92.0,1000,Elapsed time 0:00:03.812177,93.8,1000,Elapsed time 0:00:03.745854,94.45,703,Elapsed time 0:00:16.352362,92.59,715,Elapsed time 0:00:16.242139,Round Total elapsed time 0:00:40.154411
+"4, 6 x 7",46,8,97.0,1000,Elapsed time 0:00:02.450502,94.1,1000,Elapsed time 0:00:02.793828,97.01,835,Elapsed time 0:00:10.821270,94.18,756,Elapsed time 0:00:14.944856,Round Total elapsed time 0:00:31.013000
+"4, 6 x 8",52,9,96.9,1000,Elapsed time 0:00:02.508079,96.7,1000,Elapsed time 0:00:02.766183,97.37,835,Elapsed time 0:00:11.582967,96.1,847,Elapsed time 0:00:11.106023,Round Total elapsed time 0:00:27.968251
+"4, 5 x 9",49,10,98.2,1000,Elapsed time 0:00:02.233028,96.1,1000,Elapsed time 0:00:02.800184,98.3,1000,Elapsed time 0:00:02.029597,96.9,1000,Elapsed time 0:00:02.231871,Round Total elapsed time 0:00:09.297628
+"4, 4 x 10",44,11,100.0,1000,Elapsed time 0:00:01.484088,96.6,1000,Elapsed time 0:00:02.124066,100.0,1000,Elapsed time 0:00:01.424412,98.63,879,Elapsed time 0:00:08.477647,Round Total elapsed time 0:00:13.513210
+0,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0.0,0,0,Total elapsed time 0:04:52.277188
