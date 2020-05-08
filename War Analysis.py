@@ -18,6 +18,8 @@
 #                     from previous plots when executing the command: plot
 #                     if the previous plot was still available
 # 1.2     1/15/2020   Moved to GitHub
+# 1.21    5/8/2020   Swapped the output of function getTally to correct the 
+#                     creation of the CSV statistics file
 
 import random
 from collections import defaultdict
@@ -34,11 +36,10 @@ from mpl_toolkits.mplot3d import Axes3D
 import time
 from datetime import timedelta
 
-
 class War_card_game:
     """
     Card game class that plays matches of the card game war and generates a
-    statistical pandas dataFrame that can be utilized for analyzing the 
+    statistical pandas DataFrame that can be utilized for analyzing the 
     results.
     """
     def __init__(self, cards, suits, unSuited=None, reshuffleWins=True, 
@@ -466,7 +467,7 @@ class War_card_game:
                 )
                 # Only flush the print after all shuffling, cheats, etc. 
                 print(d, flush = True)
-
+                
     def battle(self, message=False, _ignore=False):
         """
         This function will play a single hand of war. This function is designed
@@ -633,7 +634,7 @@ class War_card_game:
             for _ in range(maxRounds):
                 if self.battle(message) == -1:
                     break
-        
+                
     def playMatch(self, players = 2, matches = 10000, maxRounds=0):
         """
         Play a sepcified number of matches
@@ -670,10 +671,10 @@ class War_card_game:
         # plot was overriding the current plot. 
         # This was on a problem in Anaconda where a previous graph might still
         # exist; otherwise, I could have just set the size by using:
-        # x = vc.plot(legend=True, figsize=[10, 8])
+        #x = vc.plot(legend=True, figsize=[10, 8])
         plt.figure(figsize=(10, 8))
-        
-        x = vc.plot(legend=True)
+
+        x = vc.plot.line(legend=True)
         x.set_xlabel("Number of Rounds to Win")
         x.set_ylabel("Occurrences")
         x.set_title("Value-Count Graph (Matches: " + str(totalMatches) + ")")
@@ -875,7 +876,7 @@ Turns until winning (Matches: """ + str(totalMatches) + ")")
         totalMatches = len(df)
         vc = df["Winner"].value_counts()
         wins = vc.tolist()
-        return totalMatches, round(max(wins)/totalMatches*100,2)
+        return round(max(wins)/totalMatches*100,2), totalMatches
         
     def allGraphs(self):
         self.valueCountGraph()
@@ -1037,14 +1038,13 @@ if __name__ == "__main__":
 
     # Play for range of playes 2 and 3 and only change when applying the 
     #   specific cards to a player since these we the most interesting results
-
     games.setApplyCheatsPreSplit(True)
     games.setReshuffleWins(True)
     print("*** 3 Players Generating Graphs ***", flush = True)
     games.playMatch(4, 10000)
     games.export_Stats(fr"War_3_player_dataframe.csv")
     games.allGraphs() 
-        
+
     # For testing purposes this code will print the entire dataFrame 
     #   to the screen
     # pd.options.display.max_rows = 10000
